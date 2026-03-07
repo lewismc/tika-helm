@@ -227,38 +227,24 @@ config:
   # @example -- "http://localhost/", "https://tika.example.com/"
   base_url: 'http://localhost/'
 
-# -- Custom Tika configuration (tika-config.xml) as a multiline string. Use for parser config, MIME excludes, and other options. See [configuring Tika](https://tika.apache.org/2.9.1/configuring.html). Use with additionalConfigs to mount extra files (e.g. custom MIME types). Example in values.yaml (commented block below).
-# @example -- tikaConfig: | "<?xml ...><properties><parsers>...</parsers></properties>"; pair with additionalConfigs for files like custom-mimetypes.xml
-tikaConfig: ""
-
-# -- Additional config files mounted alongside tika-config (e.g. custom MIME types). Keys are filenames, values are file contents. Use together with tikaConfig when your config references them (e.g. mime-table-path).
-# @example -- {"custom-mimetypes.xml": "<?xml ...><mime-info>...</mime-info>"}
-additionalConfigs: {}
-
-# Example tikaConfig and additionalConfigs (commented out; uncomment and customize as needed):
-# tikaConfig: |
-#   <?xml version="1.0" encoding="UTF-8"?>
+# -- Custom Tika configuration (tika-config.xml) as a multiline string. Use for parser config, MIME excludes, and other options. See [configuring Tika](https://tika.apache.org/2.9.1/configuring.html). Use with additionalConfigs to mount extra files (e.g. custom MIME types).
+# @example -- <?xml version="1.0" encoding="UTF-8"?>
 #   <properties>
-#     <mtrandata>
+#     <metadata>
 #       <mime-table-path>/tika-config/custom-mimetypes.xml</mime-table-path>
-#     </mtrandata>
+#     </metadata>
 #     <parsers>
-#       <!-- Default Parser for most things, except for 2 mime
-#         types, and never use the Executable Parser -->
+#       <!-- Default Parser for most things, except for 2 mime types -->
 #       <parser class="org.apache.tika.parser.DefaultParser">
 #         <mime-exclude>image/jpeg</mime-exclude>
 #         <mime-exclude>application/pdf</mime-exclude>
-#         <parser-exclude
-#           class="org.apache.tika.parser.executable.ExecutableParser"/>
-#       </parser>
-#       <!-- Use a different parser for PDF -->
-#       <parser class="org.apache.tika.parser.EmptyParser">
-#         <mime>application/pdf</mime>
 #       </parser>
 #     </parsers>
 #   </properties>
-# additionalConfigs:
-#   custom-mimetypes.xml: |
+tikaConfig: ""
+
+# -- Additional config files mounted alongside tika-config (e.g. custom MIME types). Keys are filenames, values are file contents. Use together with tikaConfig when your config references them (e.g. mime-table-path).
+# @example -- custom-mimetypes.xml: |
 #     <?xml version="1.0" encoding="UTF-8"?>
 #     <mime-info>
 #       <mime-type type="application/pdf">
@@ -268,3 +254,4 @@ additionalConfigs: {}
 #         <glob pattern="*.pdf"/>
 #       </mime-type>
 #     </mime-info>
+additionalConfigs: {}
