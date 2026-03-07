@@ -19,26 +19,34 @@
 # Declare variables to be passed into your templates.
 
 # -- Number of Tika pod replicas to deploy
+# @example -- 1, 2, 3
 replicaCount: 1
 
 image:
   # -- Docker image repository for Apache Tika
+  # @example -- "apache/tika", "my-registry.io/apache/tika"
   repository: apache/tika
   # -- Image pull policy for the Tika container
+  # @example -- "IfNotPresent", "Always", "Never"
   pullPolicy: IfNotPresent
   # -- Overrides the image tag whose default is the chart appVersion
+  # @example -- "3.2.3.0-full", "latest-full"
   tag: '3.2.3.0-full'
 
 # -- Secrets for pulling images from a private registry
+# @example -- [], or [{name: "my-registry-secret"}]
 imagePullSecrets: []
 
 # -- Override the name of the chart
+# @example -- "", "my-tika"
 nameOverride: ''
 
 # -- Override the full name of the release
+# @example -- "", "tika-server"
 fullnameOverride: ''
 
 # -- Override the namespace for the release
+# @example -- "", "tika-prod"
 namespaceOverride: ''
 
 # Environment variables to set in the container
@@ -50,56 +58,73 @@ namespaceOverride: ''
 
 serviceAccount:
   # -- Specifies whether a service account should be created
+  # @example -- true, false
   create: true
   # -- Annotations to add to the service account
+  # @example -- {}, {eks.amazonaws.com/role-arn: "arn:aws:iam::..."}
   annotations: {}
   # -- The name of the service account to use; if not set
   # and create is true, a name is generated
+  # @example -- "", "tika-sa"
   name: ''
 
 # -- Annotations to add to the Tika pods
+# @example -- {}, {"prometheus.io/scrape": "true"}
 podAnnotations: {}
 
 podSecurityContext:
   # -- Security context for the pod
+  # @example -- {}, {fsGroup: 2000}
   {}
   # fsGroup: 2000
 
 securityContext:
   # -- Allow privilege escalation for the container
+  # @example -- true, false
   allowPrivilegeEscalation: true
   capabilities:
     # -- Capabilities to drop for the container
+    # @example -- "[ALL]", "[NET_RAW]"
     drop:
       - ALL
   # -- Run container with read-only root filesystem
+  # @example -- true, false
   readOnlyRootFilesystem: true
   # -- Run container as non-root user
+  # @example -- true, false
   runAsNonRoot: true
   # -- User ID to run the container
+  # @example -- 35002, 1000
   runAsUser: 35002
   # -- Group ID to run the container
+  # @example -- 35002, 1000
   runAsGroup: 35002
 
 service:
   # -- Type of Kubernetes service to expose Tika
+  # @example -- "ClusterIP", "LoadBalancer", "NodePort"
   type: ClusterIP
   # -- Port for the Tika service
+  # @example -- 9998, 8080
   port: 9998
 
 ingress:
   # -- Enable ingress for the Tika service
+  # @example -- true, false
   enabled: false
   # -- Annotations for the ingress resource
+  # @example -- {}, {kubernetes.io/ingress.class: "nginx"}
   annotations:
     {}
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   hosts:
     # -- Hostnames for the ingress
+    # @example -- [{host: "tika.example.com", paths: [{path: "/", pathType: "Prefix"}]}]
     - host: chart-example.local
       paths: []
   # -- TLS configuration for the ingress
+  # @example -- [], [{secretName: "tika-tls", hosts: ["tika.example.com"]}]
   tls:
     []
     # - secretName: chart-example-tls
@@ -108,77 +133,109 @@ ingress:
 
 livenessProbe:
   # -- Initial delay before starting liveness probe (seconds)
+  # @example -- 15, 30
   initialDelaySeconds: 15
   # -- Timeout for liveness probe (seconds)
+  # @example -- 30, 10
   timeoutSeconds: 30
   # -- Number of failed liveness probes before restarting the pod
+  # @example -- 20, 6
   failureThreshold: 20
   # -- Interval between liveness probes (seconds)
+  # @example -- 5, 10
   periodSeconds: 5
   # -- Scheme for liveness probe (HTTP or HTTPS)
+  # @example -- "HTTP", "HTTPS"
   scheme: HTTP
 
 readinessProbe:
   # -- Initial delay before starting readiness probe (seconds)
+  # @example -- 15, 30
   initialDelaySeconds: 15
   # -- Timeout for readiness probe (seconds)
+  # @example -- 30, 10
   timeoutSeconds: 30
   # -- Number of failed readiness probes before marking pod as not ready
+  # @example -- 20, 6
   failureThreshold: 20
   # -- Interval between readiness probes (seconds)
+  # @example -- 5, 10
   periodSeconds: 5
   # -- Scheme for readiness probe (HTTP or HTTPS)
+  # @example -- "HTTP", "HTTPS"
   scheme: HTTP
 
 resources:
   # -- Resource limits for the Tika container
+  # @example -- {cpu: "2", memory: 2000Mi}
   limits:
     cpu: '2'
     memory: 2000Mi
   # -- Resource requests for the Tika container
+  # @example -- {cpu: "1", memory: 1500Mi}
   requests:
     cpu: '1'
     memory: 1500Mi
 
 autoscaling:
   # -- API version for the HorizontalPodAutoscaler
+  # @example -- "autoscaling/v2", "autoscaling/v2beta2"
   apiVersion: autoscaling/v2
   # -- Enable autoscaling for Tika pods
+  # @example -- true, false
   enabled: false
   # -- Minimum number of replicas
+  # @example -- 1, 2
   minReplicas: 1
   # -- Maximum number of replicas
+  # @example -- 100, 10
   maxReplicas: 100
   # -- Target CPU utilization percentage for autoscaling
+  # @example -- 80, 70
   targetCPUUtilizationPercentage: 80
   # -- Target memory utilization percentage for autoscaling
+  # @example -- 80, 85
   targetMemoryUtilizationPercentage: 80
 
 # -- Node selector for pod scheduling
+# @example -- {}, {disktype: "ssd"}
 nodeSelector: {}
 
 # -- Tolerations for pod scheduling
+# @example -- [], [{key: "dedicated", operator: "Equal", value: "tika", effect: "NoSchedule"}]
 tolerations: []
 
 # -- Affinity rules for pod scheduling
+# @example -- {}, {podAntiAffinity: {...}}
 affinity: {}
 
 # -- Control how Pods are spread across the cluster
+# @example -- [], [{maxSkew: 1, topologyKey: "topology.kubernetes.io/zone", whenUnsatisfiable: "DoNotSchedule"}]
 topologySpreadConstraints: []
 
 networkPolicy:
   # -- Create a network policy to restrict traffic to pods within the
   # same namespace that include the label `<release>-client: true`.
+  # @example -- true, false
   enabled: false
   # -- Allow external traffic without requiring a "-client" label
+  # @example -- true, false
   allowExternal: false
 
 config:
   # -- Base URL for the Tika service
+  # @example -- "http://localhost/", "https://tika.example.com/"
   base_url: 'http://localhost/'
 
-# -- Custom Tika configuration (tika-config.xml)
-# Refer https://tika.apache.org/2.9.1/configuring.html for details
+# -- Custom Tika configuration (tika-config.xml) as a multiline string. Use for parser config, MIME excludes, and other options. See [configuring Tika](https://tika.apache.org/2.9.1/configuring.html). Use with additionalConfigs to mount extra files (e.g. custom MIME types). Example in values.yaml (commented block below).
+# @example -- tikaConfig: | "<?xml ...><properties><parsers>...</parsers></properties>"; pair with additionalConfigs for files like custom-mimetypes.xml
+tikaConfig: ""
+
+# -- Additional config files mounted alongside tika-config (e.g. custom MIME types). Keys are filenames, values are file contents. Use together with tikaConfig when your config references them (e.g. mime-table-path).
+# @example -- {"custom-mimetypes.xml": "<?xml ...><mime-info>...</mime-info>"}
+additionalConfigs: {}
+
+# Example tikaConfig and additionalConfigs (commented out; uncomment and customize as needed):
 # tikaConfig: |
 #   <?xml version="1.0" encoding="UTF-8"?>
 #   <properties>

@@ -22,7 +22,6 @@ will work with the version of Tika you are installing.
 - [Installing](#installing)
   - [Install released version using Helm repository](#install-released-version-using-helm-repository)
   - [Install development version using main branch](#install-development-version-using-main-branch)
-  - [Custom configuration for tika](#custom-configuration-for-tika)
 - [Upgrading](#upgrading)
 - [Values](#values)
 - [Testing](#testing)
@@ -75,40 +74,6 @@ while true; do kubectl --namespace tika-test port-forward $POD_NAME 9998:$CONTAI
 
 * Install it:
   - with Helm 3: `helm install tika . --set image.tag=latest-full`
-
-### Custom configuration for tika
-
-To use custom [configuration]( https://tika.apache.org/2.9.1/configuring.html) values for apache tika, use the `tikaConfig` key in the `values.yaml`.
-Example:
-
-```
-tikaConfig: |
-  <?xml version="1.0" encoding="UTF-8"?>
-  <properties>
-    <mtrandata>
-      <mime-table-path>/tika-config/custom-mimetypes.xml</mime-table-path>
-    </mtrandata>
-    <parsers>
-      <!-- Default Parser for most things, except for 2 mime types -->
-      <parser class="org.apache.tika.parser.DefaultParser">
-        <mime-exclude>image/jpeg</mime-exclude>
-        <mime-exclude>application/pdf</mime-exclude>
-      </parser>
-    </parsers>
-  </properties>
-
-additionalConfigs:
-  custom-mimetypes.xml: |
-    <?xml version="1.0" encoding="UTF-8"?>
-    <mime-info>
-      <mime-type type="application/pdf">
-        <magic priority="80">
-          <match value="%PDF-" type="string" offset="0:8192"/>
-        </magic>
-        <glob pattern="*.pdf"/>
-      </mime-type>
-    </mime-info>
-```
 
 ## Upgrading
 

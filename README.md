@@ -22,7 +22,6 @@ will work with the version of Tika you are installing.
 - [Installing](#installing)
   - [Install released version using Helm repository](#install-released-version-using-helm-repository)
   - [Install development version using main branch](#install-development-version-using-main-branch)
-  - [Custom configuration for tika](#custom-configuration-for-tika)
 - [Upgrading](#upgrading)
 - [Values](#values)
 - [Testing](#testing)
@@ -76,40 +75,6 @@ while true; do kubectl --namespace tika-test port-forward $POD_NAME 9998:$CONTAI
 * Install it:
   - with Helm 3: `helm install tika . --set image.tag=latest-full`
 
-### Custom configuration for tika
-
-To use custom [configuration]( https://tika.apache.org/2.9.1/configuring.html) values for apache tika, use the `tikaConfig` key in the `values.yaml`.
-Example:
-
-```
-tikaConfig: |
-  <?xml version="1.0" encoding="UTF-8"?>
-  <properties>
-    <mtrandata>
-      <mime-table-path>/tika-config/custom-mimetypes.xml</mime-table-path>
-    </mtrandata>
-    <parsers>
-      <!-- Default Parser for most things, except for 2 mime types -->
-      <parser class="org.apache.tika.parser.DefaultParser">
-        <mime-exclude>image/jpeg</mime-exclude>
-        <mime-exclude>application/pdf</mime-exclude>
-      </parser>
-    </parsers>
-  </properties>
-
-additionalConfigs:
-  custom-mimetypes.xml: |
-    <?xml version="1.0" encoding="UTF-8"?>
-    <mime-info>
-      <mime-type type="application/pdf">
-        <magic priority="80">
-          <match value="%PDF-" type="string" offset="0:8192"/>
-        </magic>
-        <glob pattern="*.pdf"/>
-      </mime-type>
-    </mime-info>
-```
-
 ## Upgrading
 
 Please check `artifacthub.io/changes` in `Chart.yaml` before upgrading.
@@ -118,12 +83,25 @@ Please check `artifacthub.io/changes` in `Chart.yaml` before upgrading.
 
 <table>
 	<thead>
+		<tr>
 		<th>Key</th>
 		<th>Type</th>
 		<th>Default</th>
 		<th>Description</th>
+		<th>Example</th>
+		</tr>
 	</thead>
 	<tbody>
+		<tr>
+			<td>additionalConfigs</td>
+			<td>object</td>
+			<td><pre lang="json">
+{}
+</pre>
+</td>
+			<td>Additional config files mounted alongside tika-config (e.g. custom MIME types). Keys are filenames, values are file contents. Use together with tikaConfig when your config references them (e.g. mime-table-path).</td>
+			<td><pre lang="text">{"custom-mimetypes.xml": "<?xml ...><mime-info>...</mime-info>"}</pre></td>
+		</tr>
 		<tr>
 			<td>affinity</td>
 			<td>object</td>
@@ -132,6 +110,7 @@ Please check `artifacthub.io/changes` in `Chart.yaml` before upgrading.
 </pre>
 </td>
 			<td>Affinity rules for pod scheduling</td>
+			<td><pre lang="text">{}, {podAntiAffinity: {...}}</pre></td>
 		</tr>
 		<tr>
 			<td>autoscaling.apiVersion</td>
@@ -141,6 +120,7 @@ Please check `artifacthub.io/changes` in `Chart.yaml` before upgrading.
 </pre>
 </td>
 			<td>API version for the HorizontalPodAutoscaler</td>
+			<td><pre lang="text">"autoscaling/v2", "autoscaling/v2beta2"</pre></td>
 		</tr>
 		<tr>
 			<td>autoscaling.enabled</td>
@@ -150,6 +130,7 @@ false
 </pre>
 </td>
 			<td>Enable autoscaling for Tika pods</td>
+			<td><pre lang="text">true, false</pre></td>
 		</tr>
 		<tr>
 			<td>autoscaling.maxReplicas</td>
@@ -159,6 +140,7 @@ false
 </pre>
 </td>
 			<td>Maximum number of replicas</td>
+			<td><pre lang="text">100, 10</pre></td>
 		</tr>
 		<tr>
 			<td>autoscaling.minReplicas</td>
@@ -168,6 +150,7 @@ false
 </pre>
 </td>
 			<td>Minimum number of replicas</td>
+			<td><pre lang="text">1, 2</pre></td>
 		</tr>
 		<tr>
 			<td>autoscaling.targetCPUUtilizationPercentage</td>
@@ -177,6 +160,7 @@ false
 </pre>
 </td>
 			<td>Target CPU utilization percentage for autoscaling</td>
+			<td><pre lang="text">80, 70</pre></td>
 		</tr>
 		<tr>
 			<td>autoscaling.targetMemoryUtilizationPercentage</td>
@@ -186,6 +170,7 @@ false
 </pre>
 </td>
 			<td>Target memory utilization percentage for autoscaling</td>
+			<td><pre lang="text">80, 85</pre></td>
 		</tr>
 		<tr>
 			<td>config.base_url</td>
@@ -195,6 +180,7 @@ false
 </pre>
 </td>
 			<td>Base URL for the Tika service</td>
+			<td><pre lang="text">"http://localhost/", "https://tika.example.com/"</pre></td>
 		</tr>
 		<tr>
 			<td>fullnameOverride</td>
@@ -204,6 +190,7 @@ false
 </pre>
 </td>
 			<td>Override the full name of the release</td>
+			<td><pre lang="text">"", "tika-server"</pre></td>
 		</tr>
 		<tr>
 			<td>image.pullPolicy</td>
@@ -213,6 +200,7 @@ false
 </pre>
 </td>
 			<td>Image pull policy for the Tika container</td>
+			<td><pre lang="text">"IfNotPresent", "Always", "Never"</pre></td>
 		</tr>
 		<tr>
 			<td>image.repository</td>
@@ -222,6 +210,7 @@ false
 </pre>
 </td>
 			<td>Docker image repository for Apache Tika</td>
+			<td><pre lang="text">"apache/tika", "my-registry.io/apache/tika"</pre></td>
 		</tr>
 		<tr>
 			<td>image.tag</td>
@@ -231,6 +220,7 @@ false
 </pre>
 </td>
 			<td>Overrides the image tag whose default is the chart appVersion</td>
+			<td><pre lang="text">"3.2.3.0-full", "latest-full"</pre></td>
 		</tr>
 		<tr>
 			<td>imagePullSecrets</td>
@@ -240,6 +230,7 @@ false
 </pre>
 </td>
 			<td>Secrets for pulling images from a private registry</td>
+			<td><pre lang="text">[], or [{name: "my-registry-secret"}]</pre></td>
 		</tr>
 		<tr>
 			<td>ingress.annotations</td>
@@ -249,6 +240,7 @@ false
 </pre>
 </td>
 			<td>Annotations for the ingress resource</td>
+			<td><pre lang="text">{}, {kubernetes.io/ingress.class: "nginx"}</pre></td>
 		</tr>
 		<tr>
 			<td>ingress.enabled</td>
@@ -258,6 +250,7 @@ false
 </pre>
 </td>
 			<td>Enable ingress for the Tika service</td>
+			<td><pre lang="text">true, false</pre></td>
 		</tr>
 		<tr>
 			<td>ingress.hosts[0]</td>
@@ -270,6 +263,7 @@ false
 </pre>
 </td>
 			<td>Hostnames for the ingress</td>
+			<td><pre lang="text">[{host: "tika.example.com", paths: [{path: "/", pathType: "Prefix"}]}]</pre></td>
 		</tr>
 		<tr>
 			<td>ingress.tls</td>
@@ -279,6 +273,7 @@ false
 </pre>
 </td>
 			<td>TLS configuration for the ingress</td>
+			<td><pre lang="text">[], [{secretName: "tika-tls", hosts: ["tika.example.com"]}]</pre></td>
 		</tr>
 		<tr>
 			<td>livenessProbe.failureThreshold</td>
@@ -288,6 +283,7 @@ false
 </pre>
 </td>
 			<td>Number of failed liveness probes before restarting the pod</td>
+			<td><pre lang="text">20, 6</pre></td>
 		</tr>
 		<tr>
 			<td>livenessProbe.initialDelaySeconds</td>
@@ -297,6 +293,7 @@ false
 </pre>
 </td>
 			<td>Initial delay before starting liveness probe (seconds)</td>
+			<td><pre lang="text">15, 30</pre></td>
 		</tr>
 		<tr>
 			<td>livenessProbe.periodSeconds</td>
@@ -306,6 +303,7 @@ false
 </pre>
 </td>
 			<td>Interval between liveness probes (seconds)</td>
+			<td><pre lang="text">5, 10</pre></td>
 		</tr>
 		<tr>
 			<td>livenessProbe.scheme</td>
@@ -315,6 +313,7 @@ false
 </pre>
 </td>
 			<td>Scheme for liveness probe (HTTP or HTTPS)</td>
+			<td><pre lang="text">"HTTP", "HTTPS"</pre></td>
 		</tr>
 		<tr>
 			<td>livenessProbe.timeoutSeconds</td>
@@ -324,6 +323,7 @@ false
 </pre>
 </td>
 			<td>Timeout for liveness probe (seconds)</td>
+			<td><pre lang="text">30, 10</pre></td>
 		</tr>
 		<tr>
 			<td>nameOverride</td>
@@ -333,6 +333,7 @@ false
 </pre>
 </td>
 			<td>Override the name of the chart</td>
+			<td><pre lang="text">"", "my-tika"</pre></td>
 		</tr>
 		<tr>
 			<td>namespaceOverride</td>
@@ -342,6 +343,7 @@ false
 </pre>
 </td>
 			<td>Override the namespace for the release</td>
+			<td><pre lang="text">"", "tika-prod"</pre></td>
 		</tr>
 		<tr>
 			<td>networkPolicy.allowExternal</td>
@@ -351,6 +353,7 @@ false
 </pre>
 </td>
 			<td>Allow external traffic without requiring a "-client" label</td>
+			<td><pre lang="text">true, false</pre></td>
 		</tr>
 		<tr>
 			<td>networkPolicy.enabled</td>
@@ -360,6 +363,7 @@ false
 </pre>
 </td>
 			<td>Create a network policy to restrict traffic to pods within the same namespace that include the label `<release>-client: true`.</td>
+			<td><pre lang="text">true, false</pre></td>
 		</tr>
 		<tr>
 			<td>nodeSelector</td>
@@ -369,6 +373,7 @@ false
 </pre>
 </td>
 			<td>Node selector for pod scheduling</td>
+			<td><pre lang="text">{}, {disktype: "ssd"}</pre></td>
 		</tr>
 		<tr>
 			<td>podAnnotations</td>
@@ -378,6 +383,7 @@ false
 </pre>
 </td>
 			<td>Annotations to add to the Tika pods</td>
+			<td><pre lang="text">{}, {"prometheus.io/scrape": "true"}</pre></td>
 		</tr>
 		<tr>
 			<td>podSecurityContext</td>
@@ -386,6 +392,7 @@ false
 {}
 </pre>
 </td>
+			<td></td>
 			<td></td>
 		</tr>
 		<tr>
@@ -396,6 +403,7 @@ false
 </pre>
 </td>
 			<td>Number of failed readiness probes before marking pod as not ready</td>
+			<td><pre lang="text">20, 6</pre></td>
 		</tr>
 		<tr>
 			<td>readinessProbe.initialDelaySeconds</td>
@@ -405,6 +413,7 @@ false
 </pre>
 </td>
 			<td>Initial delay before starting readiness probe (seconds)</td>
+			<td><pre lang="text">15, 30</pre></td>
 		</tr>
 		<tr>
 			<td>readinessProbe.periodSeconds</td>
@@ -414,6 +423,7 @@ false
 </pre>
 </td>
 			<td>Interval between readiness probes (seconds)</td>
+			<td><pre lang="text">5, 10</pre></td>
 		</tr>
 		<tr>
 			<td>readinessProbe.scheme</td>
@@ -423,6 +433,7 @@ false
 </pre>
 </td>
 			<td>Scheme for readiness probe (HTTP or HTTPS)</td>
+			<td><pre lang="text">"HTTP", "HTTPS"</pre></td>
 		</tr>
 		<tr>
 			<td>readinessProbe.timeoutSeconds</td>
@@ -432,6 +443,7 @@ false
 </pre>
 </td>
 			<td>Timeout for readiness probe (seconds)</td>
+			<td><pre lang="text">30, 10</pre></td>
 		</tr>
 		<tr>
 			<td>replicaCount</td>
@@ -441,6 +453,7 @@ false
 </pre>
 </td>
 			<td>Number of Tika pod replicas to deploy</td>
+			<td><pre lang="text">1, 2, 3</pre></td>
 		</tr>
 		<tr>
 			<td>resources.limits</td>
@@ -453,6 +466,7 @@ false
 </pre>
 </td>
 			<td>Resource limits for the Tika container</td>
+			<td><pre lang="text">{cpu: "2", memory: 2000Mi}</pre></td>
 		</tr>
 		<tr>
 			<td>resources.requests</td>
@@ -465,6 +479,7 @@ false
 </pre>
 </td>
 			<td>Resource requests for the Tika container</td>
+			<td><pre lang="text">{cpu: "1", memory: 1500Mi}</pre></td>
 		</tr>
 		<tr>
 			<td>securityContext.allowPrivilegeEscalation</td>
@@ -474,6 +489,7 @@ true
 </pre>
 </td>
 			<td>Allow privilege escalation for the container</td>
+			<td><pre lang="text">true, false</pre></td>
 		</tr>
 		<tr>
 			<td>securityContext.capabilities.drop</td>
@@ -485,6 +501,7 @@ true
 </pre>
 </td>
 			<td>Capabilities to drop for the container</td>
+			<td><pre lang="text">"[ALL]", "[NET_RAW]"</pre></td>
 		</tr>
 		<tr>
 			<td>securityContext.readOnlyRootFilesystem</td>
@@ -494,6 +511,7 @@ true
 </pre>
 </td>
 			<td>Run container with read-only root filesystem</td>
+			<td><pre lang="text">true, false</pre></td>
 		</tr>
 		<tr>
 			<td>securityContext.runAsGroup</td>
@@ -503,6 +521,7 @@ true
 </pre>
 </td>
 			<td>Group ID to run the container</td>
+			<td><pre lang="text">35002, 1000</pre></td>
 		</tr>
 		<tr>
 			<td>securityContext.runAsNonRoot</td>
@@ -512,6 +531,7 @@ true
 </pre>
 </td>
 			<td>Run container as non-root user</td>
+			<td><pre lang="text">true, false</pre></td>
 		</tr>
 		<tr>
 			<td>securityContext.runAsUser</td>
@@ -521,6 +541,7 @@ true
 </pre>
 </td>
 			<td>User ID to run the container</td>
+			<td><pre lang="text">35002, 1000</pre></td>
 		</tr>
 		<tr>
 			<td>service.port</td>
@@ -530,6 +551,7 @@ true
 </pre>
 </td>
 			<td>Port for the Tika service</td>
+			<td><pre lang="text">9998, 8080</pre></td>
 		</tr>
 		<tr>
 			<td>service.type</td>
@@ -539,6 +561,7 @@ true
 </pre>
 </td>
 			<td>Type of Kubernetes service to expose Tika</td>
+			<td><pre lang="text">"ClusterIP", "LoadBalancer", "NodePort"</pre></td>
 		</tr>
 		<tr>
 			<td>serviceAccount.annotations</td>
@@ -548,6 +571,7 @@ true
 </pre>
 </td>
 			<td>Annotations to add to the service account</td>
+			<td><pre lang="text">{}, {eks.amazonaws.com/role-arn: "arn:aws:iam::..."}</pre></td>
 		</tr>
 		<tr>
 			<td>serviceAccount.create</td>
@@ -557,6 +581,7 @@ true
 </pre>
 </td>
 			<td>Specifies whether a service account should be created</td>
+			<td><pre lang="text">true, false</pre></td>
 		</tr>
 		<tr>
 			<td>serviceAccount.name</td>
@@ -566,6 +591,17 @@ true
 </pre>
 </td>
 			<td>The name of the service account to use; if not set and create is true, a name is generated</td>
+			<td><pre lang="text">"", "tika-sa"</pre></td>
+		</tr>
+		<tr>
+			<td>tikaConfig</td>
+			<td>string</td>
+			<td><pre lang="json">
+""
+</pre>
+</td>
+			<td>Custom Tika configuration (tika-config.xml) as a multiline string. Use for parser config, MIME excludes, and other options. See [configuring Tika](https://tika.apache.org/2.9.1/configuring.html). Use with additionalConfigs to mount extra files (e.g. custom MIME types). Example in values.yaml (commented block below).</td>
+			<td><pre lang="text">tikaConfig: | with XML <properties><parsers>...</parsers></properties>; pair with additionalConfigs for files like custom-mimetypes.xml</pre></td>
 		</tr>
 		<tr>
 			<td>tolerations</td>
@@ -575,6 +611,7 @@ true
 </pre>
 </td>
 			<td>Tolerations for pod scheduling</td>
+			<td><pre lang="text">[], [{key: "dedicated", operator: "Equal", value: "tika", effect: "NoSchedule"}]</pre></td>
 		</tr>
 		<tr>
 			<td>topologySpreadConstraints</td>
@@ -584,6 +621,7 @@ true
 </pre>
 </td>
 			<td>Control how Pods are spread across the cluster</td>
+			<td><pre lang="text">[], [{maxSkew: 1, topologyKey: "topology.kubernetes.io/zone", whenUnsatisfiable: "DoNotSchedule"}]</pre></td>
 		</tr>
 	</tbody>
 </table>
@@ -615,7 +653,7 @@ The code is licensed permissively under the [Apache License v2.0][].
 
 ## Maintainers
 
-| Name | Email | Url |
+| Name | Email | URL |
 | ---- | ------ | --- |
 | lewismc | <lewismc@apache.org> | <https://github.com/lewismc> |
 | stijnbrouwers |  | <https://github.com/stijnbrouwers> |
@@ -629,9 +667,6 @@ The code is licensed permissively under the [Apache License v2.0][].
 | CiraciNicolo |  | <https://github.com/CiraciNicolo> |
 | amalucelli |  | <https://github.com/amalucelli> |
 | thatmlopsguy |  | <https://github.com/thatmlopsguy> |
-
-----------------------------------------------
-Autogenerated from chart metadata using [helm-docs v1.14.2](https://github.com/norwoodj/helm-docs/releases/v1.14.2)
 
 [Apache License v2.0]: https://www.apache.org/licenses/LICENSE-2.0.html
 [Apache Software Foundation]: http://apache.org
